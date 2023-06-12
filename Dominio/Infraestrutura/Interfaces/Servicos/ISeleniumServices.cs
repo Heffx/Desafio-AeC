@@ -11,5 +11,7 @@ namespace Dominio.Infraestrutura.Interfaces.Servicos
         public List<Curso> BuscarConteudodeCursos();
 
         public void FiltrarPorTipo(string tipo);
+
+        public void EncerrarDriver();
     }
 }

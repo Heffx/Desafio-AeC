@@ -95,5 +95,10 @@ namespace Infraestrutura.Servicos
 
             return cursos;
         }
+
+        public void EncerrarDriver()
+        {
+            _driver.Close();
+        }
     }
 }
