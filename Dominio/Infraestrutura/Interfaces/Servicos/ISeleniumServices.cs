@@ -1,10 +1,13 @@
-﻿using OpenQA.Selenium;
-
-namespace Dominio.Infraestrutura.Interfaces.Servicos
+﻿namespace Dominio.Infraestrutura.Interfaces.Servicos
 {
     public interface ISeleniumServices
     {
-        public IWebDriver NavegarPagina(string url);
-        public IWebDriver PesquisaPagina(IWebDriver driver, string itemPesquisa);
+        public void NavegarPagina(string url);
+
+        public void PesquisaPagina(string itemPesquisa);
+
+        public void BuscarConteudodeCursos();
+
+        public void FiltrarPorTipo(string tipo);
     }
 }

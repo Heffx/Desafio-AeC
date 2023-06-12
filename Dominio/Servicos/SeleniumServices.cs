@@ -1,49 +1,87 @@
 ﻿using Dominio.Infraestrutura.Interfaces.Servicos;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 
 namespace Dominio.Servicos
 {
     public class SeleniumServices : ISeleniumServices
     {
-        public IWebDriver NavegarPagina(string url)
+        private ChromeDriver _driver;
+
+        public SeleniumServices()
+        {
+            _driver = new ChromeDriver();
+        }
+
+        public void NavegarPagina(string url)
         {
             if(url == null)
                 throw new ArgumentNullException("Url não pode ser nula");
 
             if (!url.Contains("http"))
                 throw new UriFormatException("url não contem protocolo para navegação");
-
-            IWebDriver driver = new ChromeDriver();
-            
-            driver.Navigate().GoToUrl(new Uri(url));
-
-            return driver;
+                        
+            _driver.Navigate().GoToUrl(new Uri(url));
         }
 
-        public IWebDriver PesquisaPagina(IWebDriver driver, string itemPesquisa)
+        public void PesquisaPagina(string itemPesquisa)
         {
-            if (driver == null)
-                throw new Exception("Driver esta nulo");
+            new WebDriverWait(_driver, new TimeSpan(0,0,30)).Until(_driver => _driver.FindElement(By.Id("header-barraBusca-form-campoBusca")));
 
-
-            IWebElement search = driver.FindElement(By.Id("header-barraBusca-form-campoBusca"));
+            IWebElement search = _driver.FindElement(By.Id("header-barraBusca-form-campoBusca"));
 
             if(search != null)
             {
                 search.SendKeys(itemPesquisa);
 
-                IWebElement searchButton = driver.FindElement(By.ClassName("header-barraBusca-form-submit"));
+                IWebElement searchButton = _driver.FindElement(By.ClassName("header-barraBusca-form-submit"));
 
                 searchButton.Click();
-
-                return driver;
             }
             else
             {
                 throw new Exception("WebElement search não encontrado");
             }
+        }
 
+        public void FiltrarPorTipo(string tipo)
+        {
+            new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.XPath("//*[@id=\"busca-resultados\"]/ul")));
+
+            var url = _driver.Url;
+
+            url = url + $"&typeFilters={tipo}";
+
+            _driver.Navigate().GoToUrl(url);
+        }
+
+        public void BuscarConteudodeCursos()
+        {
+            new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.XPath("//*[@id=\"busca-resultados\"]/ul")));
+
+            var listaConteudo = _driver.FindElement(By.XPath("//*[@id=\"busca-resultados\"]/ul")).FindElements(By.ClassName("busca-resultado-container"));
+
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(150);
+
+            foreach (var item in listaConteudo)
+            {
+                new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.ClassName("busca__title")).Displayed);
+                Thread.Sleep(5000);
+
+                var nome = item.FindElement(By.ClassName("busca-resultado-nome"))?.Text;
+                var descricao = item.FindElement(By.ClassName("busca-resultado-descricao"))?.Text;
+
+                item.Click();
+
+                new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.XPath("/html/body/section[1]/div/div[2]/div[1]/div/div[1]/div/p[1]")));
+
+                var tempo = _driver.FindElement(By.XPath("/html/body/section[1]/div/div[2]/div[1]/div/div[1]/div/p[1]"))?.Text;
+                var instrutor = _driver.FindElement(By.ClassName("instructor-title--name"))?.Text;
+
+                _driver.Navigate().Back();
+            }
         }
     }
 }
