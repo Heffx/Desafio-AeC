@@ -1,10 +1,10 @@
-﻿using Dominio.Infraestrutura.Interfaces.Servicos;
+﻿using Dominio.Entidades;
+using Dominio.Infraestrutura.Interfaces.Servicos;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 
-namespace Dominio.Servicos
+namespace Infraestrutura.Servicos
 {
     public class SeleniumServices : ISeleniumServices
     {
@@ -57,8 +57,10 @@ namespace Dominio.Servicos
             _driver.Navigate().GoToUrl(url);
         }
 
-        public void BuscarConteudodeCursos()
+        public List<Curso> BuscarConteudodeCursos()
         {
+            List<Curso> cursos = new List<Curso>();
+
             new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.XPath("//*[@id=\"busca-resultados\"]/ul")));
 
             var listaConteudo = _driver.FindElement(By.XPath("//*[@id=\"busca-resultados\"]/ul")).FindElements(By.ClassName("busca-resultado-container"));
@@ -77,11 +79,21 @@ namespace Dominio.Servicos
 
                 new WebDriverWait(_driver, new TimeSpan(0, 0, 30)).Until(driver => driver.FindElement(By.XPath("/html/body/section[1]/div/div[2]/div[1]/div/div[1]/div/p[1]")));
 
-                var tempo = _driver.FindElement(By.XPath("/html/body/section[1]/div/div[2]/div[1]/div/div[1]/div/p[1]"))?.Text;
-                var instrutor = _driver.FindElement(By.ClassName("instructor-title--name"))?.Text;
+                var cargaHoraria = _driver.FindElement(By.XPath("/html/body/section[1]/div/div[2]/div[1]/div/div[1]/div/p[1]"))?.Text;
+                var professor = _driver.FindElement(By.ClassName("instructor-title--name"))?.Text;
+
+                cursos.Add(new Curso
+                {
+                    Nome = nome,
+                    Descricao = descricao,
+                    CargaHoraria = cargaHoraria,
+                    Professor = professor
+                });
 
                 _driver.Navigate().Back();
             }
+
+            return cursos;
         }
     }
 }

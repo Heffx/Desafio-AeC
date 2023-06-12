@@ -1,5 +1,5 @@
 ﻿using Dominio.Infraestrutura.Interfaces.Servicos;
-using Dominio.Servicos;
+using Infraestrutura.Servicos;
 using Microsoft.Extensions.DependencyInjection;
 
 class Program
@@ -20,6 +20,6 @@ class Program
         chrome.NavegarPagina("https://www.alura.com.br/");
         chrome.PesquisaPagina("RPA");
         chrome.FiltrarPorTipo("COURSE");
-        chrome.BuscarConteudodeCursos();
+        var listaCursos = chrome.BuscarConteudodeCursos();
     }
 }
